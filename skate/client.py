@@ -17,15 +17,15 @@ class Client:
     def __aexit__(self, exc_type, exc_val, exc_tb):
         self.writer.close()
 
-    async def execute(self, url, data) -> bytes:
+    async def execute(self, host, port, data) -> bytes:
         if self.verify:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS)
             context.load_verify_locations(self.verify)
             context.verify_mode = ssl.CERT_REQUIRED
             context.check_hostname = True
+            self.reader, self.writer = await asyncio.open_connection(host, port, ssl=context)
         else:
-            context = None
-        self.reader, self.writer = await asyncio.open_connection(url, port, ssl=context)
+            self.reader, self.writer = await asyncio.open_connection(host, port)
         if data:
             self.writer.write(data.encode())
         data_res = b''
@@ -34,6 +34,7 @@ class Client:
             if not res:
                 break
             data_res += res
+        self.writer.close()
         return data_res
 
     async def request(
@@ -43,12 +44,11 @@ class Client:
             data: ... = None,
             headers: dict = None
     ) -> Response:
-        req = Request(method=method)
-        req.url = url
-        req.headers = headers or {}
-        req.body = data or b''
-        res = await self.execute(url, data)
-        response = Response(res)
+        req = Request(url=url, method=method, headers=headers)
+        req.body = data or ''
+        content = req.render()
+        res = await self.execute(req.host, req.port, content)
+        response = Response()
         return response
 
     async def get(
