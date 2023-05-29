@@ -1,5 +1,5 @@
 import pytest
-from skate.client import Client
+from httplus.client import Client
 
 
 @pytest.mark.asyncio
