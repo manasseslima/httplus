@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "httplus"
-version = "0.0.0"
+version = "0.1.0"
 description = "An HTTP asynchronous client."
 authors = ["Manasses Lima <manasseslima@gmail.com>"]
 license = "MIT"
@@ -9,10 +9,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
+
 
 [build-system]
 requires = ["poetry-core"]

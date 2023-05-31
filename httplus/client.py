@@ -17,25 +17,33 @@ class Client:
     def __aexit__(self, exc_type, exc_val, exc_tb):
         self.writer.close()
 
-    async def execute(self, host, port, data) -> bytes:
+    async def execute(self, host, port, data) -> Response:
+        context = None
         if self.verify:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS)
             context.load_verify_locations(self.verify)
             context.verify_mode = ssl.CERT_REQUIRED
             context.check_hostname = True
-            self.reader, self.writer = await asyncio.open_connection(host, port, ssl=context)
-        else:
-            self.reader, self.writer = await asyncio.open_connection(host, port)
-        if data:
-            self.writer.write(data.encode())
-        data_res = b''
+        reader, writer = await asyncio.open_connection(host, port, ssl=context)
+        writer.write(data)
+        await writer.drain()
+        response = Response()
+        line = await reader.readline()
+        response.set_controller(line)
         while True:
-            res = await self.reader.read(100)
-            if not res:
+            line = await reader.readline()
+            if not line or line == b'\r\n':
                 break
-            data_res += res
-        self.writer.close()
-        return data_res
+            response.set_header_pair(line)
+        if response.content_length:
+            while True:
+                line = await reader.read(1000)
+                if not line:
+                    break
+                response.body += line
+        writer.close()
+        await writer.wait_closed()
+        return response
 
     async def request(
             self,
@@ -44,12 +52,12 @@ class Client:
             data: ... = None,
             headers: dict = None
     ) -> Response:
+        headers = headers or {}
         req = Request(url=url, method=method, headers=headers)
-        req.body = data or ''
+        req.set_data(data)
         content = req.render()
         res = await self.execute(req.host, req.port, content)
-        response = Response()
-        return response
+        return res
 
     async def get(
             self,
@@ -64,6 +72,8 @@ class Client:
             data: ... = None,
             headers: dict = None
     ) -> Response:
+        if not data:
+            raise Exception(f'Data must be set!')
         return await self.request('POST', url, data, headers)
 
     async def put(
@@ -72,6 +82,8 @@ class Client:
             data: ... = None,
             headers: dict = None
     ) -> Response:
+        if not data:
+            raise Exception(f'Data must be set!')
         return await self.request('PUT', url, data, headers)
 
     async def delete(
@@ -88,6 +100,8 @@ class Client:
             data: ... = None,
             headers: dict = None
     ) -> Response:
+        if not data:
+            raise Exception(f'Data must be set!')
         return await self.request('PATCH', url, data, headers)
 
     async def options(
