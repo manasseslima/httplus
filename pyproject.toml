@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "httplus"
-version = "0.1.0"
+version = "0.1.1"
 description = "An HTTP asynchronous client."
 authors = ["Manasses Lima <manasseslima@gmail.com>"]
 license = "MIT"

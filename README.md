@@ -2,6 +2,9 @@
 
 An HTTP asynchronous client.
 
+[![Stable Version](https://img.shields.io/pypi/v/httplus?label=pypi)](https://pypi.org/project/httplus/)
+
+
 
 ## Instalation
 ```shell

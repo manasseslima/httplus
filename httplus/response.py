@@ -25,7 +25,7 @@ class Response:
     def set_header_pair(self, line: bytes):
         self.raw += line
         key, value = line.decode().split(':', maxsplit=1)
-        self.headers[key] = value
+        self.headers[key] = value[:-2].strip()
         if key == 'Content-Type':
             self.content_type = value
         elif key == 'Content-Length':
