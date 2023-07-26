@@ -26,9 +26,10 @@ class Response:
         self.raw += line
         key, value = line.decode().split(':', maxsplit=1)
         self.headers[key] = value[:-2].strip()
-        if key == 'Content-Type':
+        key = key.lower()
+        if key == 'content-type':
             self.content_type = value
-        elif key == 'Content-Length':
+        elif key == 'content-length':
             self.content_length = int(value)
 
     def set_body(self, line: bytes):

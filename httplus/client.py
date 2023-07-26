@@ -1,9 +1,6 @@
-import ssl
 import asyncio
-import socket
-from typing import Optional
-from .request import Request
-from .response import Response
+from httplus.request import Request
+from httplus.response import Response
 
 
 class Client:

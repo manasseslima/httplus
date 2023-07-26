@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+
+## [0.1.2] - 2023-07-26
+### Fixed
+- Fixed module request and response reference error in client module.
+
+
 ## [0.1.1] - 2023-07-25
 ### Fixed
 - Fixed chunked responses without content-length defined.
